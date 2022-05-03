@@ -1,10 +1,9 @@
-class:bindHook('ToME:birthDone', function(self, data)
+class:bindHook('ToME:load', function(self, data)
   local Talents = require 'engine.interface.ActorTalents'
   local TD = Talents.talents_def
-  local DamageType = require 'engine.DamageType'
-  
-if game.state.birth.ignore_prodigies_special_reqs then
-    TD.T_DRACONIC_BODY.require.special = nil
-    TD.T_DRACONIC_WILL.require.special = nil
-  end
+
+  TD.T_DRACONIC_WILL.require.special = {desc=_t"Be close to the draconic world", fct=function(self) return game.state.birth.ignore_prodigies_special_reqs or (self:attr("drake_touched") and self:attr("drake_touched") >= 1) end}
+
+  TD.T_DRACONIC_BODY.require.special = {desc=_t"Be close to the draconic world", fct=function(self) return game.state.birth.ignore_prodigies_special_reqs or (self:attr("drake_touched") and self:attr("drake_touched") >= 1) end}
+
 end)
