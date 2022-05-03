@@ -1,0 +1,110 @@
+class:bindHook('ToME:load', function(self, data)
+  local Talents = require 'engine.interface.ActorTalents'
+  local TD = Talents.talents_def
+  local DamageType = require 'engine.DamageType'
+
+  -- Strength
+  TD.T_GIANT_LEAP.require.special = nil
+  TD.T_MASSIVE_BLOW.require.special = nil
+  TD.T_IRRESISTIBLE_SUN.require.special = {desc=_t"Have dealt over 50 light or fire damage", fct=function(self) return
+    self.damage_log and (
+      (self.damage_log[DamageType.FIRE] and self.damage_log[DamageType.FIRE] >= 50) or
+      (self.damage_log[DamageType.LIGHT] and self.damage_log[DamageType.LIGHT] >= 50)
+    )
+  end}
+
+  -- Dexterity
+  TD.T_WINDBLADE.require.special = nil
+  local vital_shot_special_desc = TD.T_VITAL_SHOT.require.special.desc
+  local vital_shot_special_fct = TD.T_VITAL_SHOT.require.special.fct
+  TD.T_VITAL_SHOT.require.special = {desc = vital_shot_special_desc..' or have access to test dummy', fct = vital_shot_special_fct}
+
+  -- Constitution
+  TD.T_ARMOUR_OF_SHADOWS.require.special = {desc=_t"Have dealt over 50 darkness damage", fct=function(self) return
+    self.damage_log and (
+      (self.damage_log[DamageType.DARKNESS] and self.damage_log[DamageType.DARKNESS] >= 50)
+    )
+  end}
+
+  -- Magic
+  TD.T_TEMPORAL_FORM.require.special = {desc=_t"Have visited a zone outside of time", fct=function(self) return
+    game.state.birth.ignore_prodigies_special_reqs or self:attr("temporal_touched")
+  end}
+  TD.T_BLIGHTED_SUMMONING.require.special = nil
+  TD.T_CAUTERIZE.require.special = {desc=_t"Have received at least 50 fire damage and have cast at least 5 spells", fct=function(self) return
+    self.talent_kind_log and self.talent_kind_log.spell and self.talent_kind_log.spell >= 5 and self.damage_intake_log and self.damage_intake_log[DamageType.FIRE] and self.damage_intake_log[DamageType.FIRE] >= 50
+  end}
+
+  -- Willpower
+  TD.T_MENTAL_TYRANNY.require.special = {desc=_t"Have dealt over 50 mind damage", fct=function(self) return 
+    self.damage_log and (
+      (self.damage_log[DamageType.MIND] and self.damage_log[DamageType.MIND] >= 50)
+    )
+  end}
+
+  -- Cunning
+  TD.T_ENDLESS_WOES.require.special = nil
+  TD.T_ELEMENTAL_SURGE.require.special = nil
+
+end)
+
+class:bindHook('ToME:birthDone', function(self, data)
+  local Talents = require 'engine.interface.ActorTalents'
+  local TD = Talents.talents_def
+  local DamageType = require 'engine.DamageType'
+  
+  local vital_shot_special_desc = string.sub(TD.T_VITAL_SHOT.require.special.desc, 1, string.len(TD.T_VITAL_SHOT.require.special.desc) - 29)
+  local vital_shot_special_fct = TD.T_VITAL_SHOT.require.special.fct
+
+  if game.state.birth.ignore_prodigies_special_reqs then
+    -- Strength
+    TD.T_LEGACY_OF_THE_NALOREN.require.special = nil
+  
+    -- Dexterity
+    TD.T_VITAL_SHOT.require.special = {desc = _t(vital_shot_special_desc), fct = vital_shot_special_fct}
+  
+    -- Constitution
+    TD.T_DRACONIC_BODY.require.special = nil
+    TD.T_BLOODSPRING.require.special = nil
+    local corrupted_shell_special_desc = TD.T_CORRUPTED_SHELL.require.special.desc
+    local corrupted_shell_special_fct = TD.T_CORRUPTED_SHELL.require.special.fct
+    TD.T_CORRUPTED_SHELL.require.special = {desc = corrupted_shell_special_desc..' (the later not required here)', fct = corrupted_shell_special_fct}    
+  
+    -- Magic
+    TD.T_AETHER_PERMEATION.require.special = nil
+    TD.T_TEMPORAL_FORM.require.special = nil
+    TD.T_REVISIONIST_HISTORY.require.special = nil
+  
+    -- Willpower
+    TD.T_DRACONIC_WILL.require.special = nil
+    TD.T_METEORIC_CRASH = nil
+    local garkul_s_revenge_special_desc = TD.T_GARKUL_S_REVENGE.require.special.desc
+    local garkul_s_revenge_special_fct = TD.T_GARKUL_S_REVENGE.require.special.fct
+    TD.T_GARKUL_S_REVENGE.require.special = {desc = garkul_s_revenge_special_desc..' (the later not required here)', fct = garkul_s_revenge_special_fct}  
+  
+    -- Cunning
+    TD.T_TRICKS_OF_THE_TRADE.require.special = nil
+  else
+    TD.T_CORRUPTED_SHELL.require.special = {desc=_t"Have received at least 50 blight damage and destroyed Zigur with the Grand Corruptor.", fct=function(self) return
+      (self.damage_intake_log and self.damage_intake_log[DamageType.BLIGHT] and self.damage_intake_log[DamageType.BLIGHT] >= 50) and
+      (self:hasQuest("anti-antimagic") and 
+        self:hasQuest("anti-antimagic"):isStatus(engine.Quest.DONE) and
+        not self:hasQuest("anti-antimagic"):isStatus(engine.Quest.COMPLETED, "grand-corruptor-treason")
+      )
+    end}
+  end
+
+  if not game.state.birth.supports_lich_transform then TD.T_LICH.require.special2 = nil end
+  if not game.state.birth.supports_fallen_transform then TD.T_FALLEN.require.special2 = nil end
+
+  if game.player.descriptor.world == "Maj'Eyal" then
+    TD.T_VITAL_SHOT.require.special = {desc = vital_shot_special_desc..' or have unlocked the training room', fct = function(self) return
+      vital_shot_special_fct(self) or (game.player:hasQuest("shertul-fortress") and game.player:hasQuest("shertul-fortress"):isCompleted("training"))
+    end}
+  elseif game.player.descriptor.world == "Orcs" then
+    TD.T_VITAL_SHOT.require.special = {desc = vital_shot_special_desc..' or have disposed of Kaltor', fct = function(self) return
+      vital_shot_special_fct(self) or (game.player:hasQuest("kaltor-shop") and game.player:hasQuest("kaltor-shop"):isStatus(game.player:hasQuest("kaltor-shop").DONE))
+    end}
+  end
+
+end)
