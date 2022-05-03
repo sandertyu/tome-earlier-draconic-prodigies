@@ -3,4 +3,5 @@ Allows characters to fulfill the "Be close to the draconic world" requirement fo
 https://github.com/sandertyu/tome-earlier-draconic-prodigies
 
 ---Changelog---
+- v1.0.1 cleanup changelog and files
 - v1.0.0 Initial release
