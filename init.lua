@@ -1,7 +1,7 @@
 long_name = "Earlier Draconic Prodigies"
 short_name = "earlier-draconic-prodigies" 
 for_module = "tome"
-version = {1,7,4}
+version = {1,7,5}
 addon_version = {1,0,1}
 weight = 100
 author = {'lowfye'}
