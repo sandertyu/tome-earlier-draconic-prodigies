@@ -2,7 +2,7 @@ long_name = "Earlier Draconic Prodigies"
 short_name = "earlier-draconic-prodigies" 
 for_module = "tome"
 version = {1,7,5}
-addon_version = {1,0,1}
+addon_version = {1,0,2}
 weight = 100
 author = {'lowfye'}
 homepage = "https://github.com/sandertyu/tome-earlier-draconic-prodigies"
@@ -12,6 +12,7 @@ Allows characters to fulfill the "Be close to the draconic world" requirement fo
 https://github.com/sandertyu/tome-earlier-draconic-prodigies
 
 ---Changelog---
+- v1.0.2 Update to tome4 1.7.5
 - v1.0.1 cleanup changelog and files
 - v1.0.0 Initial release
 ]]
